@@ -1,11 +1,19 @@
 package com.collins.smart_resume_parser.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 public class Resume {
 
     @Id
@@ -14,6 +22,10 @@ public class Resume {
     private String originalFileName;
     private String s3ObjectKey;
     private String fileType;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String rawText;
 
     @Enumerated(EnumType.STRING)
     private ProcessingStatus processingStatus;

@@ -1,0 +1,61 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: smart-resume-parser-db
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: smart_resume_parser
+
+    ports:
+      - "3312:3306"
+
+    volumes:
+      - smart-resume-parser-data:/var/lib/mysql
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-p${DB_PASSWORD}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+
+  smart-resume-parser:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: smart-resume-parser-app
+    restart: unless-stopped
+
+    ports:
+      - "8085:8080"
+
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/smart_resume_parser
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+
+volumes:
+  smart-resume-parser-data:
